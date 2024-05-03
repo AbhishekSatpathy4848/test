@@ -10,7 +10,7 @@ from email import encoders
 
 app = Flask(__name__)
 
-def send_email():
+def send_email(text):
     email = 'abhisheksatpathy4848@gmail.com'
     password = 'diqs dvtt wkgi vfaq'  #using Google App Passwords
 
@@ -18,13 +18,13 @@ def send_email():
     message["From"] = "Solmelu"
     message["Subject"] = "Solmelu: Feedback from User"
     message["To"] = "abhisheksatpathy.211it002@nitk.edu.in"
-    messageText = MIMEText("testing emails")
+    messageText = MIMEText(text)
     message.attach(messageText)
-    # # binary_pdf = open(path, 'rb')
-    # # payload = MIMEBase('application', 'octate-stream', Name=pdfname)
-    # # payload.set_payload((binary_pdf).read())
-    # encoders.encode_base64(payload)
-    # message.attach(payload)
+    binary_pdf = open("ss.png", 'rb')
+    payload = MIMEBase('application', 'octate-stream', Name=binary_pdf)
+    payload.set_payload((binary_pdf).read())
+    encoders.encode_base64(payload)
+    message.attach(payload)
     server = smtplib.SMTP('smtp.gmail.com:587')
     server.ehlo('Gmail')
     server.starttls()
@@ -44,11 +44,12 @@ def save_image(image, image_name):
     with open(image_name, "wb") as f:
         f.write(image)
 
-@app.route('/send-mail')
+@app.route('/send-mail', methods=["POST"])
 def hello_world():
-    # image = decode_base_64(request.json["image_data"])
-    # save_image(image, "uploaded_image.png")
-    send_email()
+    image = decode_base_64(request.json["screenshot"])
+    text = request.json["text"]
+    save_image(image, "ss.png")
+    send_email(text)
     return Response(status=201)
 
 @app.route('/')
@@ -56,4 +57,4 @@ def index():
     return "Use /send-mail to send email"
 
 if __name__ == '__main__':
-    app.run()
+    app.run(port=8000, debug=True)
